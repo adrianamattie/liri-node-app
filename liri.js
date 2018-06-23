@@ -6,9 +6,9 @@ require("dotenv").config();
 
 
 var request = require('request');
-var keys = require("./keys.js");
-var spotify = require('node-spotify-api');
-var twitter = require('twitter');
+var keys = require("./key.js");
+var Spotify = require('node-spotify-api');
+var Twitter = require('twitter');
 var fs = require("fs");
 
 var spotify = new Spotify(keys.spotify);
@@ -19,20 +19,20 @@ var userInput = process.argv[3];
 
 switch (liriCommand) {
     case "my-tweets":
-    myTweets();
-    break;
+        myTweets();
+        break;
 
     case "spotify-this-song":
-    spotify();
-    break;
+        spotifySong(userInput);
+        break;
 
     case "movie-this":
-    movie();
-    break;
+        movie(userInput);
+        break;
 
     case "do-what-it-says":
-    doWhat();
-    break;
+        doWhat();
+        break;
 }
 
 //THINGS LIRI SHOULD DO
@@ -40,24 +40,21 @@ switch (liriCommand) {
 //node liri.js my-tweets - 
 //This will show your last 20 tweets and when they were created at in your terminal/bash window.
 function myTweets() {
-    
-        //api call to twitter
-        //show 20 tweets
-  
+
+    //api call to twitter
+    //show 20 tweets
+
 }
 
 
 //  `spotify-this-song`
 //node liri.js spotify-this-song '<song name here>'
 //This will show the following information about the song in your terminal / bash window
-function spotify(userInput) {
+function spotifySong(userInput) {
 
     if (!userInput) {
-        break;
+        userInput = "The Sign";
     }
-
-    else {
-
     spotify.search({
         type: 'track',
         query: userInput
@@ -66,13 +63,10 @@ function spotify(userInput) {
             return console.log('Error occurred: ' + err);
         }
 
-        console.log(data);
+        console.log(data.tracks.items[0].name);
+        console.log(data.tracks.items[0].preview_url);
+        console.log(data.tracks.items[0].album.name);
     })
-
-    .then(function (response) {
-            console.log(response);
-        })
-    }
 };
 
 
@@ -95,3 +89,5 @@ function movie() {
 function doWhat() {
 
 }
+
+
