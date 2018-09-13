@@ -17,6 +17,7 @@ var client = new Twitter(keys.twitter);
 var liriCommand = process.argv[2];
 var userInput = process.argv[3];
 
+//complete
 switch (liriCommand) {
     case "my-tweets":
         myTweets();
@@ -35,16 +36,20 @@ switch (liriCommand) {
         break;
 }
 
-//THINGS LIRI SHOULD DO
-//  *`my-tweets`
-//node liri.js my-tweets - 
-//This will show your last 20 tweets and when they were created at in your terminal/bash window.
 function myTweets() {
-
-    //api call to twitter
-    //show 20 tweets
-
-}
+    var params = {
+        screen_name: "@AdrianaShulman"
+    };
+    client.get('statuses/user_timeline', params, function (error, tweets, response) {
+        if (!error) {
+            for (var i = 0; i <= 20; i++) {
+                console.log("Tweet number " + [i] + ": " + tweets[i].text);
+                console.log("This was tweeted on: " + tweets[i].created_at);
+                console.log("<-===============================->");
+            };
+        };
+    });
+};
 
 
 //  `spotify-this-song`
@@ -53,41 +58,100 @@ function myTweets() {
 function spotifySong(userInput) {
 
     if (!userInput) {
-        userInput = "The Sign";
-    }
-    spotify.search({
-        type: 'track',
-        query: userInput
-    }, function (err, data) {
-        if (err) {
-            return console.log('Error occurred: ' + err);
-        }
+        noInput();
+    } else {
+        spotify.search({
+            type: 'track',
+            query: userInput
+        }, function (err, data) {
+            if (err) {
+                return console.log('Error occurred: ' + err);
+            }
 
-        console.log(data.tracks.items[0].name);
-        console.log(data.tracks.items[0].preview_url);
-        console.log(data.tracks.items[0].album.name);
-    })
+            console.log(`Song Name: ${data.tracks.items[0].name}`);
+            console.log("===============================");
+            console.log(`click here to hear the song: ${data.tracks.items[0].preview_url}`);
+            console.log("===============================");
+            console.log(`The album is: ${data.tracks.items[0].album.name}`);
+              fs.appendFile("log.txt", " , Song name: " + userInput, function (err) {
+                  if (err) {
+                      return console.log(err);
+                  }
+              });
+        })
+    }
 };
 
+function noInput() {
+    spotify.search({
+            type: 'track',
+            query: 'the sign ace of base'
+        })
+        .then(function (response) {
+            var songs = response.tracks.items;
+            console.log(`You didn't choose a song but here is what I can do. Take a look at this song ${songs[0].name}`);
+            console.log(`This song is by ${songs[0].artists[0].name}`);
+            console.log(`The album is:  ${songs[0].album.name}`);
+            console.log("===============================");
+            console.log(`You can play the song here: ${songs[0].external_urls.spotify}`);
 
-// Artist(s)
-// The song 's name
-// A preview link of the song from Spotify
-// The album that the song is from
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+};
 
-//If no song is provided then your program will default to "The Sign" by Ace of Base.
-//Client ID 423b4b6a4e8b4d6fa852b59a253e98de
-//Client Secret 6d3a351048124f65a37bffde7e09b7b7
+function movie(userInput) {
+    if (!userInput) {
+       noMovieInput();
+    } else {
+        request('http://www.omdbapi.com/?t=' + userInput + '&apikey=trilogy', function (error, response, body) {
+            var movie = JSON.parse(body);
+            console.log("You have looked up the movie: " + movie.Title);
+            console.log("===============================");
+            console.log(`It was released on:  ${movie.Released} and has a rating of ${movie.Ratings[0].Value}`);
+             console.log("It stars: " + movie.Actors);
+             console.log("===============================");
+             console.log("It was produced in: " + movie.Country);
+             console.log("It was made in: " + movie.Language);
+             console.log("===============================");
+            console.log("A brief plot summary: " + movie.Plot);
+            
+        });
+    };
+};
 
-//  `movie-this`
-function movie() {
+function noMovieInput() {
+    {
+        request('http://www.omdbapi.com/?t=' + "mr-nobody" + '&apikey=trilogy', function (error, response, body) {
+            var movie = JSON.parse(body);
+            console.log("You have looked up the movie: " + movie.Title);
+            console.log("===============================");
+            console.log(`It was released on:  ${movie.Released} and has a rating of ${movie.Ratings[0].Value}`);
+            console.log("It stars: " + movie.Actors);
+            console.log("===============================");
+            console.log("It was produced in: " + movie.Country);
+            console.log("It was made in: " + movie.Language);
+            console.log("===============================");
+            console.log("A brief plot summary: " + movie.Plot);
 
-}
+        });
+    };
+};
+
 
 //  `do-what-it-says`
 
 function doWhat() {
-
+    fs.readFile("random.txt", "utf8", function (err, data) {
+        if (err) {
+            logOutput.error(err);
+        } else {
+            var randomArray = [];
+            var songName = data.split(",");
+            //splitting at the comma and using position 1 of the array
+            randomArray.push(songName[1]);
+            spotifySong(randomArray);
+        };
+    });
 }
-
-
